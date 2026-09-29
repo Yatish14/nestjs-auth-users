@@ -2,6 +2,16 @@
 // npm install --save-dev prisma dotenv
 import "dotenv/config";
 import { defineConfig } from "prisma/config";
+import { getDatabaseUrl } from "./src/prisma/database-url.js";
+
+// `prisma generate` doesn't need a URL, so don't fail when DB vars are absent (e.g. during docker build)
+function tryGetDatabaseUrl() {
+  try {
+    return getDatabaseUrl();
+  } catch {
+    return undefined;
+  }
+}
 
 export default defineConfig({
   schema: "prisma",
@@ -9,6 +19,6 @@ export default defineConfig({
     path: "prisma/migrations",
   },
   datasource: {
-    url: process.env["DATABASE_URL"],
+    url: tryGetDatabaseUrl(),
   },
 });
